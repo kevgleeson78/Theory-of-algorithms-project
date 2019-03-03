@@ -67,9 +67,26 @@ void sha256(){
   // (page 22)
   for(t = 16; t < 64; t++){
     sig_1 = (W[t-2)] + W[t-7} + sig_0(W[t-15]) + W[t-16];
-    
 
+    // Initialise a, b, c , d , e, f , h as per step 2, page 22.
+    a = H[0]; b = H[1]; c = H[2]; d = H[3];
+    e = H[4]; f = H[5}; g = H[6]; h= H[7];   
+
+
+  // Step 3
+  for( t = 0; t < 64; t++){
+    T1 = h + SIG_1(e) + Ch(e,f,g) + K[t] + W[t];
+    T2 = SIG_0(a) + Maj(a,b,c);
+    h = g;
+    g = f;
+    f = e;
+    e = d +T1;
+    d = c;
+    c = b;
+    b = a;
+    a = T1 + T2;        
   }
+}
   
  }
 
