@@ -1,52 +1,57 @@
-# Prerequisites
-*.d
+*.diff
+*.patch
+*.orig
+*.rej
 
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+*~
+.#*
+*#
 
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
+*.flt
+*.gmo
+*.info
 *.la
 *.lo
+*.o
+*.pyc
+*.tmp
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+.deps
+.libs
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+autom4te.cache
+config.cache
+config.h
+config.intl
+config.log
+config.status
+libtool
+POTFILES
+*-POTFILES
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+TAGS
+TAGS.sub
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+.local.vimrc
+.lvimrc
+
+.clang-format
+
+.gdbinit
+.gdb_history
+
+# ignore core files, but not java/net/protocol/core/
+core
+!core/
+
+lost+found
+
+# ignore ./contrib/gcc_update output
+LAST_UPDATED
+REVISION
+
+# ignore in-tree prerequisites
+/mpfr*
+/mpc*
+/gmp*
+/isl*
