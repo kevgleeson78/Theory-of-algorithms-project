@@ -7,6 +7,9 @@ union msgblock{
   uint64_t s[8];
 };
 
+enum status {READ, PAD0, PAD1, FINISH};
+
+
 
 int main(int argc, char *argv[]) {
 
@@ -15,6 +18,9 @@ int main(int argc, char *argv[]) {
   uint64_t nobits = 0; 
 
   uint64_t nobytes; 
+
+  enum status S = READ;
+
 
   FILE* f;
   f = fopen(argv[1], "r");
