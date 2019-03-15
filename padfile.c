@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   FILE* f;
   f = fopen(argv[1], "r");
     
-  while(!feof(f)) {
+  while(S == READ) {
     nobytes =  fread(M.e, 1, 64, f);
     printf("Read %211u bytes\n", nobytes);
     nobits = nobits + (nobytes * 8);
@@ -36,8 +36,17 @@ int main(int argc, char *argv[]) {
         nobytes = nobytes + 1;
         M.e[nobytes] = 0x00;
       }
-      M.s[7] = nobits;      
-    }
+      //@TODO Ensure that it is big endian
+      M.s[7] = nobits;
+      S = FINISH;      
+    } else if (nobytes < 64) {
+        S = PAD0;
+        M.e[nobytes] = 0x80;
+        while(nobytes < 64) {
+          nobytes = nobytes + 1;
+          M.e[nobytes] = 0x00;
+        }          
+      }
   }
 
   fclose(f);
