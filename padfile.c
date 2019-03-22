@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdint.h>
-
 union msgblock{
   uint8_t e[64];
   uint32_t t[16];
@@ -8,8 +7,20 @@ union msgblock{
 };
 
 enum status {READ, PAD0, PAD1, FINISH};
+// Adapted from https://stackoverflow.com/questions/45307516/c-c-code-to-convert-big-endian-to-little-endian
+// Function to convert little endian to big endian. 
+uint64_t swap(uint64_t k){
 
-
+  return ((k << 56) |
+          ((k & 0x000000000000FF00) << 40) |
+          ((k & 0x0000000000FF0000) << 24) |
+          ((k & 0x00000000FF000000) << 8) |
+          ((k & 0x000000FF00000000) >> 8) |
+          ((k & 0x0000FF0000000000) >> 24) |
+          ((k & 0x00FF000000000000) >> 40) |
+          (k >> 56)
+          );
+}
 
 int main(int argc, char *argv[]) {
 
@@ -20,8 +31,7 @@ int main(int argc, char *argv[]) {
   uint64_t nobytes; 
 
   enum status S = READ;
-
-
+  
   FILE* f;
   f = fopen(argv[1], "r");
   int i;  
@@ -36,8 +46,9 @@ int main(int argc, char *argv[]) {
         nobytes = nobytes + 1;
         M.e[nobytes] = 0x00;
       }
-      //@TODO Ensure that it is big endian
-      M.s[7] = nobits;
+      //@TODO Ensure that it is big endian 
+      M.s[7] = swap(nobits);
+      
       S = FINISH;      
     } else if (nobytes < 64) {
         S = PAD0;
