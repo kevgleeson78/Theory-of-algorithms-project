@@ -23,7 +23,8 @@ uint64_t swap(uint64_t k){
 }
 
 int main(int argc, char *argv[]) {
-
+// Variable to be used check for endian
+int num = 1;
   union msgblock M;
   
   uint64_t nobits = 0; 
@@ -46,8 +47,19 @@ int main(int argc, char *argv[]) {
         nobytes = nobytes + 1;
         M.e[nobytes] = 0x00;
       }
-      //@TODO Ensure that it is big endian 
-      M.s[7] = swap(nobits);
+ //Condidition for endian check
+  if (*(char *)&num == 1)
+  {
+     printf("The system is Little-Endian message block converted to big endian\n");
+     //@todo ensure message is big endian
+     M.s[7] = swap(nobits);
+  }
+  else
+  {
+    printf("The system is Big-Endian no need to convert\n");
+    //@todo ensure message block is in big endian 
+    M.s[7] = nobits;
+  }
       
       S = FINISH;      
     } else if (nobytes < 64) {
