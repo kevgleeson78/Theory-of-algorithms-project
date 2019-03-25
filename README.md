@@ -22,7 +22,9 @@ This is used to compile and run the various files held within this repository. P
 ```
 <br>
 This will clone the repository to your machine
+
 4: To compile the application cd to the Theory-of-algorithms folder and type the following command. 
+
 ```bash
 > gcc -o sha256.c sha256
 ```
