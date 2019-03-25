@@ -64,6 +64,8 @@ int main(int argc, char *argv[]){
 // Implementation of the sha256 function declared at top of script.
 void sha256(){
   // K constants From section 4.2.2
+  // An array of 64 fixed hex values
+  // Each value is the first thirty two-bits of the  cube roots of the first 64 prime numbers.
   uint32_t K[] = {
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,
     0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
@@ -98,6 +100,8 @@ void sha256(){
   //Hash Value
   //Hex Values from (Section 5.3.3)
   //The following 32-bit words are the inital hash values for the sha256 algorithm.
+  //These values are the first 32-bits  of the fractional parts of the square roots of
+  //the first eight prime numbers.
    uint32_t H[8] = {
     0x6a09e667,
     0xbb67ae85,
@@ -110,6 +114,7 @@ void sha256(){
   };
   
   //Current Message Block array of 16 32-bit integers
+  // Initialised to 0 for testing
   uint32_t M[16] = {0, 0, 0, 0, 0, 0, 0 ,0};
   
   // Loop variable
@@ -128,10 +133,11 @@ void sha256(){
     // (page 22) filling the remaining elements from 16 - 64.
     for(t = 16; t < 64; t++){
       // section 6.2.2
-      // apply sig1 and sig0 to W.
+      // apply sig1 and sig0 to W - t(index in array W).
       W[t] =  sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
 
-      // Initialise a, b, c , d , e, f, g, h as per step 2, page 19.
+      // Initialise working variables  a, b, c, d ,e ,f ,g ,h as per step 2, page 19.
+      // each working variable gets assigned the hard coded values from the H array.
       a = H[0]; b = H[1]; c = H[2]; d = H[3];
       e = H[4]; f = H[5]; g = H[6]; h = H[7];   
     }
@@ -169,7 +175,7 @@ void sha256(){
     H[6] = g + H[6];
     H[7] = h + H[7];
   }
-
+  // Print out the test result from the initialised array M  of zeros.
   printf("%x %x %x %x %x %x %x %x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
  }
 
@@ -212,11 +218,16 @@ uint32_t SIG1(uint32_t x){
   return (rotr(6, x) ^ rotr(11, x) ^ rotr(25, x));
 }
 
+// Ch stands for choose where y, or z gets returned based on the value 
+// of x being a 1 or a 0.
+// Source: https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
   return ((x & y) ^ ((!x) & z));
 }
 
-
+// Maj stands for majority where the resulting bit is the 
+// majority of the three input bits x, y, and z
+// Source : https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
   return ((x & y) ^ (x & z) ^ (y & z));
 }
