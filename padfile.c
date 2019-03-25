@@ -1,3 +1,9 @@
+//Padding file for the sha256 algorithm
+
+//@ Author Kevin Gleeson
+
+// Date: 25/03/2019
+
 #include <stdio.h>
 #include <stdint.h>
 union msgblock{
@@ -92,4 +98,4 @@ int num = 1;
 
 
   return 0;
-} 
+}  

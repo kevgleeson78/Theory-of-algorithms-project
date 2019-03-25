@@ -1,7 +1,5 @@
 //Sha256 Algorithm
 
-//explain stdio
-
 //@Author Kevin Gleeson
 
 //@Date 1/03/2019
@@ -127,7 +125,7 @@ void sha256(){
     H[7] = h + H[7];
   }
 
-  printf("%x %x %x %x %x %x %x %x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7], H[8]);
+  printf("%x %x %x %x %x %x %x %x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
  }
 
 // See section 3.2 fro definitions.
