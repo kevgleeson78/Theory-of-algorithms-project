@@ -25,7 +25,8 @@
 *
 */
 #include<stdint.h>
-
+//Dec nmb
+int nextMessageBlock();
 //Declare sha256 function
 void sha256();
 
@@ -120,7 +121,8 @@ void sha256(){
   // Loop variable
   int i, t;
   //Loop throuh message blocks
-  for(i = 0; i < 1; i++){
+while (nextMessageBlock()){  
+//for(i = 0; i < 1; i++){
    // Wt = mt (Page 22)
     for(t = 0; t < 16; t++){
       //Initialise the first 16 32-bit integers of M to W of the current message block.
@@ -221,6 +223,7 @@ uint32_t SIG1(uint32_t x){
 // Ch stands for choose where y, or z gets returned based on the value 
 // of x being a 1 or a 0.
 // Source: https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
+// n.b the "!" negates x for example if x is 1 it becomes a zero and vica versa.
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
   return ((x & y) ^ ((!x) & z));
 }
@@ -232,4 +235,6 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
   return ((x & y) ^ (x & z) ^ (y & z));
 }
 
+int nextMessageBlock(){
 
+}
