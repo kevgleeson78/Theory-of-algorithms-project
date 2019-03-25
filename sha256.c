@@ -4,9 +4,22 @@
 
 //@Date 1/03/2019
 
+/*The stdio package is used for input/output
+ * operations within this file using printf() for 
+ * the output of the sha256 message blocks.
+ * source : https://www.hackerearth.com/practice/notes/why-a-header-file-such-as-includestdioh-is-used/
+*/ 
 #include<stdio.h>
+
+/*
+*The stdint library is used for decalring exact  integer types.
+* e.g unsigined 32 bit integers.
+* Source: https://en.wikibooks.org/wiki/C_Programming/stdint.h
+*
+*/
 #include<stdint.h>
 
+//Declare sha256 function
 void sha256();
 
 //Sections 4.1.2 and 4.2.2 for definitions
@@ -27,13 +40,14 @@ uint32_t SIG1(uint32_t x);
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 
-
+// Main method
 int main(int argc, char *argv[]){
-
+  // Calling the sha256 function
   sha256();
   return 0;
   }
 
+// Implementation of the sha256 function declared at top of script.
 void sha256(){
   // K constants From section 4.2.2
   uint32_t K[] = {
@@ -55,16 +69,21 @@ void sha256(){
     0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2   
   };
 
-  //Message Shedule (Section 6.2)
+  //W[64] =   Message Shedule (Section 6.2)
+  // Expands the 512-bit message block into a 64 word array
+  // Source: https://crypto.stackexchange.com/questions/8636/what-does-message-schedule-mean-in-sha-256
   uint32_t W[64];
+
   //Working Variables (Section 6.2)
+  // Are used in each itteration of a loop to upadte the hash values 
   uint32_t a, b, c, d, e, f, g, h;
 
   //Two temporary variables (Section 6.2)
   uint32_t T1,T2; 
 
-  //HAsh Value
+  //Hash Value
   //Hex Values from (Section 5.3.3)
+  // The following 32-bit words are the inital hash values for the sha256 algorithm.
    uint32_t H[8] = {
     0x6a09e667,
     0xbb67ae85,
