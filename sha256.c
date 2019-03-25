@@ -4,7 +4,14 @@
 
 //@Date 1/03/2019
 
-/*The stdio package is used for input/output
+/*
+* The Secure hash standard by the National Institute of Standards and Technology is used to to develop this script.
+* The document used for development can be found at https://www.nist.gov/publications/secure-hash-standard
+*
+*/
+
+
+/* The stdio package is used for input/output
  * operations within this file using printf() for 
  * the output of the sha256 message blocks.
  * source : https://www.hackerearth.com/practice/notes/why-a-header-file-such-as-includestdioh-is-used/
@@ -22,14 +29,21 @@
 //Declare sha256 function
 void sha256();
 
-//Sections 4.1.2 and 4.2.2 for definitions
+// Sections 4.1.2 and 4.2.2 for definitions
+// returns 32-bit integer
+// (Rotate right by 7 bits) xor (rotate right 17 bits) xor (shift right 3 bits)
 uint32_t sig0(uint32_t x);
 
-int32_t sig1(uint32_t x);
+// Sections 4.1.2 and 4.2.2 for definitions
+// Returns 32 bit integer
+// (rotate right 17 bits) xor (rotate right 17 bits) xor (shift right 10 bits)
+uint32_t sig1(uint32_t x);
 
 
 // See section 3.2 for definitions
+// Function to rotate two integers x and n amount of times.
 uint32_t rotr(uint32_t n, uint32_t x);
+// function to shift right x and n number of times.
 uint32_t shr(uint32_t n, uint32_t x);
 
 
@@ -69,7 +83,7 @@ void sha256(){
     0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2   
   };
 
-  //W[64] =   Message Shedule (Section 6.2)
+  // W[64] =   Message Shedule (Section 6.2)
   // Expands the 512-bit message block into a 64 word array
   // Source: https://crypto.stackexchange.com/questions/8636/what-does-message-schedule-mean-in-sha-256
   uint32_t W[64];
@@ -83,7 +97,7 @@ void sha256(){
 
   //Hash Value
   //Hex Values from (Section 5.3.3)
-  // The following 32-bit words are the inital hash values for the sha256 algorithm.
+  //The following 32-bit words are the inital hash values for the sha256 algorithm.
    uint32_t H[8] = {
     0x6a09e667,
     0xbb67ae85,
@@ -95,7 +109,7 @@ void sha256(){
     0x5be0cd19
   };
   
-  //Current Message Block array
+  //Current Message Block array of 16 32-bit integers
   uint32_t M[16] = {0, 0, 0, 0, 0, 0, 0 ,0};
   
   // Loop variable
@@ -104,36 +118,48 @@ void sha256(){
   for(i = 0; i < 1; i++){
    // Wt = mt (Page 22)
     for(t = 0; t < 16; t++){
-    
+      //Initialise the first 16 32-bit integers of M to W of the current message block.
+      // There will be 48 elements left to fill in M. 
       W[t] = M[t];
     
     }
 
 
-    // (page 22)
+    // (page 22) filling the remaining elements from 16 - 64.
     for(t = 16; t < 64; t++){
+      // section 6.2.2
+      // apply sig1 and sig0 to W.
       W[t] =  sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
 
-      // Initialise a, b, c , d , e, f , h as per step 2, page 22.
+      // Initialise a, b, c , d , e, f, g, h as per step 2, page 19.
       a = H[0]; b = H[1]; c = H[2]; d = H[3];
-      e = H[4]; f = H[5]; g = H[6]; h= H[7];   
+      e = H[4]; f = H[5]; g = H[6]; h = H[7];   
     }
 
     // Step 3
    for( t = 0; t < 64; t++){
       T1 = h + SIG1(e) + Ch(e,f,g) + K[t] + W[t];
       T2 = SIG0(a) + Maj(a,b,c);
+      // h =  old value of g.
       h = g;
+      // g =  old value of f
       g = f;
+      // f = old value of e
       f = e;
+      // e = old value of d+T1
       e = d +T1;
+      // d = old value of c
       d = c;
+      // c = old value of b
       c = b;
+      // b = old value of a
       b = a;
+      // a = T1 + T2
       a = T1 + T2;        
     }
   
-    //Step 4
+    //Step 4 the next value of H
+    // update H values 
     H[0] = a + H[0];
     H[1] = b + H[1];
     H[2] = c + H[2];
@@ -148,13 +174,15 @@ void sha256(){
  }
 
 // See section 3.2 fro definitions.
+// ROTR_n(x) = (x >> n) | (x << (32 -n))
+  
 uint32_t rotr(uint32_t n, uint32_t x){
   
   return (x >> n) | (x << (32 - n));
   
 }
 
-
+// SHR_n(x) = (x >> n)
 uint32_t shr(uint32_t n, uint32_t x){
 
   return (x >> n);
@@ -165,18 +193,15 @@ uint32_t shr(uint32_t n, uint32_t x){
 
 
 uint32_t sig0(uint32_t x){
-  // See Section 3.2 and 4.1.2 fro definitions
-  // ROTR_n(x) = (x >> n) | (x << (32 -n))
-  // SHR_n(x) = (x >> n)
+  // See Section 3.2 and 4.1.2 for definitions
+  // (Rotate right by 7 bits) xor (rotate right 17 bits) xor (shift right 3 bits) 
   return (rotr(7, x) ^ rotr(18, x) ^ shr(3, x));
-
 }
-int32_t sig1(uint32_t x){
 
-  // See section 3.2 and 4.1.2 for definitions.
+uint32_t sig1(uint32_t x){
+  // (rotate right 17 bits) xor (rotate right 17 bits) xor (shift right 10 bits)
+  // See section 3.2 and 4.1.2 for definitions
   return (rotr(17, x) ^ rotr(19,x) ^ shr(10, x));
-  
-
 }
 
 // See section 4.1.2 for definitions
