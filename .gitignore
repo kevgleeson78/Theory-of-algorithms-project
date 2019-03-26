@@ -17,7 +17,7 @@
 *.o
 *.pyc
 *.tmp
-
+*.exe
 .deps
 .libs
 
