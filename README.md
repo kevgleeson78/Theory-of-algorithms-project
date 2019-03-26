@@ -87,7 +87,7 @@ uint32_t K[] = {
   };
   ```
   #### Message Shedule (Section 6.2)
-This array expands the 512 bit message block into a 64 byte word array to be used in the below for loop.
+This array expands the 512 bit message block into a 64 word array of each word being 32-bits in length, to be used in the below for loop.
 
 ```C
 uint32_t W[64];
@@ -106,7 +106,7 @@ Two temporary variables are lso used in the update of the has values within the 
 The following 32-bit words are the inital hash values for the sha256 algorithm.
 These values are the first 32-bits  of the fractional parts of the square roots of
 the first eight prime numbers.
-Each value is assigned to the corresponding eight working variables a, b, c, ... , h as iitial values in the first itteration of the algorithm.
+Each value is assigned to the corresponding eight working variables a, b, c, ... , h as initial values in the first itteration of the algorithm.
 ```C
 uint32_t H[8] = {
     0x6a09e667,
@@ -120,7 +120,44 @@ uint32_t H[8] = {
   };
 ```
 
+#### The array message block of 16 32-bit integers.
+```C
+uint32_t M[16] = {0, 0, 0, 0, 0, 0, 0 ,0};
+```
+# Padding to be added....
+```C
+while (nextMessageBlock()){  
+```
+#### Wt = Mt (Page 22)
+Assigns the first 16 32-bit integers to the message block to the word array W[].
+Once this has been completed there are still 48 elements left to fill in the array.
 
+```C
+ for(t = 0; t < 16; t++){
+      //Initialise the first 16 32-bit integers of M to W of the current message block.
+      // There will be 48 elements left to fill in W. 
+      W[t] = M[t];
+    
+    }
+```
+
+#### (page 22) filling the remaining elements from 16 - 64.
+In the below loop the elements from 16 -64 in the W[] array are populated buy running the sig1 and sig0 functions on certain indexeds in the w W array (more details below...).
+
+As descussed above the working variables a,b,c,...,h are initialised to each corresponding element of the h[] array.
+
+```C
+for(t = 16; t < 64; t++){
+      // section 6.2.2
+      // apply sig1 and sig0 to W - t(index in array W).
+      W[t] =  sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
+
+      // Initialise working variables  a, b, c, d ,e ,f ,g ,h as per step 2, page 19.
+      // each working variable gets assigned the hard coded values from the H array.
+      a = H[0]; b = H[1]; c = H[2]; d = H[3];
+      e = H[4]; f = H[5]; g = H[6]; h = H[7];   
+    }
+```
 
 
 
