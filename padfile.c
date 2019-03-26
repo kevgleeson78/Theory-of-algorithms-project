@@ -36,9 +36,10 @@ uint64_t swap(uint64_t k){
           );
 }
 
+
 int main(int argc, char *argv[]) {
   // Variable to be used check for endian system type.
-  int num = 0x01;
+  int num = 0x01;  
   // Access the messageblock
   union msgblock M;
   // 
