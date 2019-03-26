@@ -158,6 +158,69 @@ for(t = 16; t < 64; t++){
       e = H[4]; f = H[5]; g = H[6]; h = H[7];   
     }
 ```
+#### (section 6.6.2) assigning temporary variables T1 and T2 and updating working variables a,b,c...,h.
+The below loop itterates throuhg the 64 word message block and updates working variables a - h with each iitteration. 
+The temporary variable T1 is assigned the concatonation of the h working variable along with the t'th element of K[] and W[] and the output of the functions SIG1 and CH.
+T2 is assigned the output of SIG0 and MAJ.
+This continues until the loop has reached the end of the message block.
+These functions will be expalined futher below.
+```C
+for( t = 0; t < 64; t++){
+      T1 = h + SIG1(e) + Ch(e,f,g) + K[t] + W[t];
+      T2 = SIG0(a) + Maj(a,b,c);
+      // h =  old value of g.
+      h = g;
+      // g =  old value of f
+      g = f;
+      // f = old value of e
+      f = e;
+      // e = old value of d+T1
+      e = d +T1;
+      // d = old value of c
+      d = c;
+      // c = old value of b
+      c = b;
+      // b = old value of a
+      b = a;
+      // a = T1 + T2
+      a = T1 + T2;        
+    }
+```
+#### Updating the value of H[]
+Finally the value for the H[] array is updated from the working variables.
+This continues until the end of the input message has been reached (See padding section).
+```C
+    H[0] = a + H[0];
+    H[1] = b + H[1];
+    H[2] = c + H[2];
+    H[3] = d + H[3];
+    H[4] = e + H[4];
+    H[5] = f + H[5];
+    H[6] = g + H[6];
+    H[7] = h + H[7];
+```
+
+### Bit shifting functions
+#### rotr (rotate right)
+
+#### shr (shift right)
+
+#### sig0
+
+#### sig1
+
+#### SIG0
+
+#### SIG1
+
+
+### Bit selection functions
+
+#### Ch
+
+#### MAJ
+
+
 
 
 
