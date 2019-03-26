@@ -124,7 +124,7 @@ uint32_t H[8] = {
 ```C
 uint32_t M[16] = {0, 0, 0, 0, 0, 0, 0 ,0};
 ```
-# Padding to be added....
+
 ```C
 while (nextMessageBlock()){  
 ```
@@ -202,27 +202,81 @@ This continues until the end of the input message has been reached (See padding 
 
 ### Bit shifting functions
 #### rotr (rotate right)
-
+The below function shifts the all bits down n bits with the bits at the end of the string comming back around to the start of the string.
+```C
+uint32_t rotr(uint32_t n, uint32_t x){
+  
+  return (x >> n) | (x << (32 - n));
+  
+}
+```
 #### shr (shift right)
+The shr function shifts all bits down by n places with the bits falling off the end of the string are replaced by zeros at the start of the string. 
+```C
+uint32_t shr(uint32_t n, uint32_t x){
 
-#### sig0
-
-#### sig1
-
-#### SIG0
-
-#### SIG1
-
+  return (x >> n);
+  
+}
+```
+#### sig0 See Section 3.2 and 4.1.2 for definitions
+sig0 rotates rigth by 7 bits by 18 bits and then shr by 3 bits each of these in turn are xor'd.
+xor is where there has to be exclusivity of 1 between two binary strings if there is a 1 gets written and a zero if not.
+```C
+uint32_t sig0(uint32_t x){
+  return (rotr(7, x) ^ rotr(18, x) ^ shr(3, x));
+}
+```
+#### sig1 See section 3.2 and 4.1.2 for definitions
+sig1 is very similar to sig 0 apart from the degree of bit shifting.
+(rotate right 17 bits) xor (rotate right 17 bits) xor (shift right 10 bits)
+```C
+uint32_t sig1(uint32_t x){
+  return (rotr(17, x) ^ rotr(19,x) ^ shr(10, x));
+}
+```
+#### SIG0 See section 4.1.2 for definitions
+More rotate right and xor opperations.
+```C
+uint32_t SIG0(uint32_t x){
+ return  (rotr(2, x) ^ rotr(13, x) ^ rotr(22, x));
+}
+```
+#### SIG1 See section 4.1.2 for definitions
+More rotate right and xor opperations.
+```C
+uint32_t SIG1(uint32_t x){
+  return (rotr(6, x) ^ rotr(11, x) ^ rotr(25, x));
+}
+```
 
 ### Bit selection functions
 
 #### Ch
-
+Ch stands for choose where y, or z gets returned based on the value 
+of x being a 1 or a 0.
+ Source: https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
+n.b the "!" negates x for example if x is 1 it becomes a zero and vica versa.
+```C
+uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
+  return ((x & y) ^ ((!x) & z));
+}
+```
 #### MAJ
+Maj stands for majority where the resulting bit is the 
+majority of the three input bits x, y, and z
+Source : https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
+```C
+uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
+  return ((x & y) ^ (x & z) ^ (y & z));
+}
+```
 
 
+# Padding the message
 
 
+# Bringing the padding fuctionallity to sha256.c
 
 
 ##Resources used to create this application:
