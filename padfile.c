@@ -35,10 +35,32 @@ uint64_t swap(uint64_t k){
           (k >> 56)
           );
 }
-
+ /* Condidition for endian check
+  * Adapted from: https://stackoverflow.com/questions/8571089/how-can-i-find-endian-ness-of-my-pc-programmatically-using-c 
+  * The above num varaible is 01 in binary
+  * If little endian it will be 10.
+  * The below statment caeck the leftmost char in the binary string.
+  * if the first char is 1 it means the system is little endian.
+  * We then need to reverse the order of the bits to convert the ordering to big endian as per the instruction within 
+  * the sha256 specifctaion document.
+  */
+int checkEndian(){
+	// Variable to be used check for endian system type.
+	int num = 0x01;
+	if (*(char *)&num == 1)
+  {
+     printf("The system is Little-Endian message block converted to big endian\n");
+	 return 1;
+  }
+  else
+  {
+	printf("The system is Big-Endian no need to convert\n");
+	return 0;
+  }
+	
+}
 int main(int argc, char *argv[]) {
-  // Variable to be used check for endian system type.
-  int num = 0x01;
+ 
   // Access the messageblock
   union msgblock M;
   // 
@@ -70,24 +92,13 @@ int main(int argc, char *argv[]) {
         nobytes = nobytes + 1;
         M.e[nobytes] = 0x00;
       }
-  /* Condidition for endian check
-  * Adapted from: https://stackoverflow.com/questions/8571089/how-can-i-find-endian-ness-of-my-pc-programmatically-using-c 
-  * The above num varaible is 01 in binary
-  * If little endian it will be 10.
-  * The below statment caeck the leftmost char in the binary string.
-  * if the first char is 1 it means the system is little endian.
-  * We then need to reverse the order of the bits to convert the ordering to big endian as per the instruction within 
-  * the sha256 specifctaion document.
-  */
-  if (*(char *)&num == 1)
-  {
-     printf("The system is Little-Endian message block converted to big endian\n");
+ 
+	if(checkEndian() == 1){
      //@todo ensure message is big endian
      M.s[7] = swap(nobits);
   }
   else
   {
-    printf("The system is Big-Endian no need to convert\n");
     //@todo ensure message block is in big endian 
     M.s[7] = nobits;
   }
