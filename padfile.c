@@ -39,7 +39,7 @@ uint64_t swap(uint64_t k){
           (k >> 56)
           );
 }
- /* Condidition for endian check
+/* Condidition for endian check
   * Adapted from: https://stackoverflow.com/questions/8571089/how-can-i-find-endian-ness-of-my-pc-programmatically-using-c 
   * The above num varaible is 01 in binary
   * If little endian it will be 10.
@@ -67,6 +67,7 @@ int checkEndian(){
 }
 int main(int argc, char *argv[]) {
  
+
   // Access the messageblock
   union msgblock M;
   // value for appending to end of last message block
