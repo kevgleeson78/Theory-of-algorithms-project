@@ -274,12 +274,199 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
 
 
 # Padding the message
+With the SHA-256 algorithm all messages must be a multpile of 512 bit in lenght.
+Idf the last message block is not 512 bits it must be padded out to 512.
+The beginning of the padding starting with a 1 to ensure uniqueness and with the last 8 bytes reserved for wirtingthe size of the file in binary.
+Below are coded snippets on how the messages are padded.
 
 
-# Bringing the padding fuctionallity to sha256.c
+#### Unoins are used to store each member variable in the same memory location.
+This allows for assigning  different variable types dynamically from the same memory block.
+The Unoin below can access the msgblock and we can call the different unsigend intergers at any time from the same memory location.
+This allows us to manipulate the messages blocks as needed.
+```C
+union msgblock{
+  // To acces the message block as bytes
+  uint8_t e[64];
+  // To acces the message block as 32-bit integer 
+  uint32_t t[16];
+  // To access the message block as eight 64-bit intergers
+  uint64_t s[8];
+};
+```
+#### Reading in a File.
+A file can be passed in as a command line argument.
+A further error check is used to ensure that a valid file has been passed as an argument.
+```C
+// declare A file pointer from cmd input
+  FILE* f;
+    // open the file from the first  argument in the command line
+  f = fopen(argv[1], "r");
+  //Error check for file input.
+  // Adapted from: https://stackoverflow.com/questions/48634880/c-reading-files-passed-as-command-line-argument
+  if(f == NULL){
+	//Print the error to the user.
+    perror("fopen");
+    exit(EXIT_FAILURE);
+  }
+```
 
+#### Checking the file for the need of padding.
+Below we have a two conditions.
+The first condition checks a flag to see if it has the status of finished and returns zero if it has (terminates).
+The second condition test if either PAD0 or PAD1 are true we still need to add padding to the file.
+PAD0 starts a new message block with a 1 followed by eight zeros and then fills the rest of the block with all zeros up to the last eight bytes of the file.
+PAD1 complets the padded block with a hex representation of the size of the input file.
+zeros are added up to the last eight bytes of the file. 
+Then the size of the file is added as a hex value to the very end of the final hashed message.
+These will be explained further below.
+```C
+// store the number of bytes read from the file.
+  uint64_t nobytes;  
+  
+  // Loop control variable.
+  int i;
+  //return S as the flag FINISH if the file has finish reading.
+  if(*S == FINISH){
+	  
+	  return 0;
+  }
+  
+   //Condition to check for PAD0 or PAD1 flags.
+  //If eaither are true there still needs to be additional padding added to the file.  
+  if (*S == PAD0 || *S == PAD1) {
+	// loop up the the last 8 bytes of the block
+    for (i = 0; i < 56; i++){
+	  //add all zero bits.
+      M->e[i] = 0x00;
+    }
+	// Add the hex value of the file size to end of the message block. 
+    M->s[7] = checkEndian(*nobits);
+	//flag S as finished
+	*S == FINISH;
+ 
+	if (*S == PAD1){
+	  // Add 1 followed by 7 zeros
+	  M->e[0] = 0x80;
+	  //Enforce the loop to continue for on more itteration to add hashing to the last block.
+	  return 1;
+	}
+ }
+```
 
-##Resources used to create this application:
+#### Reading a single message block from the file
+The file is parsed one 512 bite chunk at a time.
+First we get the size of the message block.
 
+```C
+//get the size of the file as bits
+    *nobits = *nobits + (nobytes * 8);
+```
+If the size of the block is less than 56 bytes some padding will be needed to make the file a multiple of 512.
+First A 1 is added followed by all zeros up to the last eight bytes.
+The the last block is set to the size of the file for uniqueness.
+Finallly the flag is set to finish to signal the loop has completed.
+```C
 
+	//get to last eight bytes of the file
+    if(nobytes < 56) {
+	  
+	  //set to 1 followed by 7 zeros
+      M->e[nobytes] = 0x80;
+	  //loop unitl the end of the last block
+      while (nobytes < 56) {
+		//add 1 to nobytes to acces next index
+        nobytes = nobytes + 1;
+		//Set all bytes to zero up to the last eight bytes
+		// The size of the file will be the last part of the block
+        M->e[nobytes] = 0x00;
+      }
+	//Truth vaule for endian
+	
+		//@todo ensure message is big endian
+		//set the last element of M to the size of the file in bits
+		//Swap the ordering to big endian
+		M->s[7] = checkEndian(*nobits);
+	
+      //Set enum to finish to exit loop.
+      *S = FINISH;
+```
+#### Padding a file that is exactly a multiple of 512.
+Finally if the file happens to be exactly a multiple of 512 in size the file still must be padded.
+The same process is followed as above with a1 added to the start of the block with the last eight bytes being reserved for the size of the file.
+```C
+// Condition to check if there isn't enouhg room to add padding to the end of the file.
+    } else if (nobytes < 64) {
+		// States that we need another message block of all zeros
+        *S = PAD0;
+		// Set the message block e to 1 followed by 7 zero's
+        M->e[nobytes] = 0x80;
+		// Loop to end of message block to add all zeros
+        while(nobytes < 64) {
+		  //Access the next index in array.
+          nobytes = nobytes + 1;
+		  // Set to zero
+          M->e[nobytes] = 0x00;
+        }
+	  // check if end of file reached and the file size is exactly 
+	  // a multiple of 64 bytes
+      }else if(feof(msgf)){
+		// set enum to PAD1.
+        *S = PAD1;    
+      }
+```
+## Check the system for big endian
+The SHA-256 Algorithm states the the final message must be in big endian format.
+The below function checks this by having a test variable of 0x01.
+Then a check to see if the system displays this value as 10.
+```C
+uint64_t checkEndian(uint64_t test){
+	// Variable to be used check for endian system type.
+	int num = 0x01;
+	// If the first char is 1 it's littel endian
+	if (*(char *)&num == 1)
+  {
+     
+	 return swap(test);
+	 
+  }else {
+	return test;
+  }
+ }
+```
+If it does it a a little endian system and the ordering of the bits needs to be reversed.
 
+The below function reverses the ordering of a 64 bit integer.
+
+```C
+Adapted from: https://stackoverflow.com/questions/45307516/c-c-code-to-convert-big-endian-to-little-endian
+uint64_t swap(uint64_t k){
+
+  return ((k << 56) |
+          ((k & 0x000000000000FF00) << 40) |
+          ((k & 0x0000000000FF0000) << 24) |
+          ((k & 0x00000000FF000000) << 8) |
+          ((k & 0x000000FF00000000) >> 8) |
+          ((k & 0x0000FF0000000000) >> 24) |
+          ((k & 0x00FF000000000000) >> 40) |
+          (k >> 56)
+          );
+}
+```
+
+## Resources used to create this application:
+https://stackoverflow.com/questions/45307516/c-c-code-to-convert-big-endian-to-little-endian
+https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
+https://www.nist.gov/publications/secure-hash-standard
+https://www.hackerearth.com/practice/notes/why-a-header-file-such-as-includestdioh-is-used/
+https://en.wikibooks.org/wiki/C_Programming/stdint.h
+https://stackoverflow.com/questions/8571089/how-can-i-find-endian-ness-of-my-pc-programmatically-using-c 
+https://stackoverflow.com/questions/48634880/c-reading-files-passed-as-command-line-argument
+https://crypto.stackexchange.com/questions/8636/what-does-message-schedule-mean-in-sha-256
+https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
+https://web.microsoftstream.com/video/db7c03be-5902-4575-9629-34d176ff1366
+https://web.microsoftstream.com/video/2a86a2ac-aafb-46e0-a278-a3faa1d13cbf
+https://web.microsoftstream.com/video/78dc0c8d-a017-48c8-99da-0714866f35cb
+https://web.microsoftstream.com/video/9daaf80b-9c4c-4fdc-9ef6-159e0e4ccc13
+https://web.microsoftstream.com/video/200e71ec-1dc1-47a4-9de8-6f58781e3f38
+https://web.microsoftstream.com/video/f823809a-d8df-4e12-b243-e1f8ed76b93f
