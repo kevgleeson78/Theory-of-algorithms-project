@@ -6,6 +6,16 @@
 //@Date 1/03/2019
 
 /*
+* This script was developed with the aid of the following GMIT video lectures by Dr. Ian Mcloughlin.
+* https://web.microsoftstream.com/video/db7c03be-5902-4575-9629-34d176ff1366
+* https://web.microsoftstream.com/video/2a86a2ac-aafb-46e0-a278-a3faa1d13cbf
+* https://web.microsoftstream.com/video/78dc0c8d-a017-48c8-99da-0714866f35cb
+* https://web.microsoftstream.com/video/9daaf80b-9c4c-4fdc-9ef6-159e0e4ccc13
+* https://web.microsoftstream.com/video/200e71ec-1dc1-47a4-9de8-6f58781e3f38
+* https://web.microsoftstream.com/video/f823809a-d8df-4e12-b243-e1f8ed76b93f
+*/
+
+/*
 * The Secure hash standard by the National Institute of Standards and Technology is used to to develop this script.
 * The document used for development can be found at https://www.nist.gov/publications/secure-hash-standard
 *
