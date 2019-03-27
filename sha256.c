@@ -320,6 +320,7 @@ int nextMessageBlock(File *f,union msgblock *M, enum status *S, int *nobits){
   
   // Loop control variable.
   int i;
+  //return S as the flag FINISH if the file has finish reading.
   if(*S == FINISH){
 	  
 	  return 0;
@@ -327,40 +328,43 @@ int nextMessageBlock(File *f,union msgblock *M, enum status *S, int *nobits){
   
    //Condition to check for PAD0 or PAD1 flags.
   //If eaither are true there still needs to be additional padding added to the file.  
-  if (S == PAD0 || S == PAD1) {
+  if (*S == PAD0 || *S == PAD1) {
 	// loop up the the last 8 bytes of the block
     for (i = 0; i < 56; i++){
 	  //add all zero bits.
-      M.e[i] = 0x00;
+      M->e[i] = 0x00;
     }
 	// Add the hex value of the file size to end of the message block. 
-    M.s[7] = nobits;
+    M->s[7] = nobits;
+	//flag S as finished
 	S* == FINISH;
-  }
-  if (S == PAD1){
-	// Add 1 followed by 7 zeros
-    M.e[0] = 0x80;
-  }
-  //Keep looping while enum set to read.
-  while(S == READ) {
-    nobytes =  fread(M.e, 1, 64, f);
+ 
+	if (S == PAD1){
+	  // Add 1 followed by 7 zeros
+	  M.e[0] = 0x80;
+	  //Enforce the loop to continue for on more itteration to add hashing to the last block.
+	  return 1;
+	}
+ }
+	// Reading file has not finshedd yet S == READ
+    nobytes =  fread(M->e, 1, 64, f);
 	//print out number of bytes read
     printf("Read %211u bytes\n", nobytes);
 	//get the size of the file as bits
-    nobits = nobits + (nobytes * 8);
+    *nobits = *nobits + (nobytes * 8);
 	//get to last eight bytes of the file
     if(nobytes < 56) {
 	  //print message to user
       printf("I've found a block with less than 55 bytes!\n");
 	  //set to 1 followed by 7 zeros
-      M.e[nobytes] = 0x80;
+      M->e[nobytes] = 0x80;
 	  //loop unitl the end of the last block
       while (nobytes < 56) {
 		//add 1 to nobytes to acces next index
         nobytes = nobytes + 1;
 		//Set all bytes to zero up to the last eight bytes
 		// The size of the file will be the last part of the block
-        M.e[nobytes] = 0x00;
+        M->e[nobytes] = 0x00;
       }
 	//Truth vaule for endian
 	if(checkEndian() == 1){
@@ -376,13 +380,13 @@ int nextMessageBlock(File *f,union msgblock *M, enum status *S, int *nobits){
 		M.s[7] = nobits;
 	}
       //Set enum to finish to exit loop.
-      S = FINISH;
+      *S = FINISH;
 	  // Condition to check if there isn't enouhg room to add padding to the end of the file.
     } else if (nobytes < 64) {
 		// States that we need another message block of all zeros
-        S = PAD0;
+        *S = PAD0;
 		// Set the message block e to 1 followed by 7 zero's
-        M.e[nobytes] = 0x80;
+        M->e[nobytes] = 0x80;
 		// Loop to end of message block to add all zeros
         while(nobytes < 64) {
 		  //Access the next index in array.
@@ -396,8 +400,7 @@ int nextMessageBlock(File *f,union msgblock *M, enum status *S, int *nobits){
 		// set enum to PAD1.
         S = PAD1;    
       }
-  }
- 
+  
   //Close the file beling read
   fclose(f);
   // Print out the last message block.
@@ -406,5 +409,5 @@ int nextMessageBlock(File *f,union msgblock *M, enum status *S, int *nobits){
   printf("\n");
 
 
-  return 0;
+  return 1;
 }
