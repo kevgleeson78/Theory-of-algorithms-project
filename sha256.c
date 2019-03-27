@@ -52,16 +52,16 @@ uint64_t swap(uint64_t k){
   * the sha256 specifctaion document.
   */
 uint64_t checkEndian(uint64_t test){
-	// Variable to be used check for endian system type.
-	int num = 0x01;
-	// If the first char is 1 it's littel endian
-	if (*(char *)&num == 1)
+  // Variable to be used check for endian system type.
+  int num = 0x01;
+  // If the first char is 1 it's littel endian
+  if (*(char *)&num == 1)
   {
      
-	 return swap(test);
-	 
+   return swap(test);
+   
   }else {
-	return test;
+  return test;
   }
  
 
@@ -114,13 +114,13 @@ void sha256(FILE *msgf);
 int nextMessageBlock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits);
 
 int main(int argc, char *argv[]){
-	 // declare A file pointer from cmd input
+   // declare A file pointer from cmd input
   FILE* msgf;
   msgf = fopen(argv[1], "r");
   //Error check for file input.
   // Adapted from: https://stackoverflow.com/questions/48634880/c-reading-files-passed-as-command-line-argument
   if(msgf == NULL){
-	//Print the error to the user.
+  //Print the error to the user.
     perror("fopen");
     exit(EXIT_FAILURE);
   }
@@ -189,10 +189,10 @@ void sha256(FILE *msgf){
   // Loop variables
   int i, t;
   //Loop throuh message blocks
-  while(nextMessageBlock(msgf, &M, &S, &nobits)==1){
+  while(nextMessageBlock(msgf, &M, &S, &nobits)){
   
     for(t = 0; t < 16; t++){
-	  //Initialise the first 16 32-bit integers of M to W of the current message block.
+    //Initialise the first 16 32-bit integers of M to W of the current message block.
       // There will be 48 elements left to fill in W. 
       W[t] = M.t[t];
     }
@@ -309,74 +309,74 @@ int nextMessageBlock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *no
   int i;
   //return S as the flag FINISH if the file has finish reading.
   if(*S == FINISH){
-	  
-	  return 0;
+    
+    return 0;
   }
   
    //Condition to check for PAD0 or PAD1 flags.
   //If eaither are true there still needs to be additional padding added to the file.  
   if (*S == PAD0 || *S == PAD1) {
-	// loop up the the last 8 bytes of the block
+  // loop up the the last 8 bytes of the block
     for (i = 0; i < 56; i++){
-	  //add all zero bits.
+    //add all zero bits.
       M->e[i] = 0x00;
     }
-	// Add the hex value of the file size to end of the message block. 
+  // Add the hex value of the file size to end of the message block. 
     M->s[7] = checkEndian(*nobits);
-	//flag S as finished
-	*S == FINISH;
+  //flag S as finished
+  *S == FINISH;
  
-	if (*S == PAD1){
-	  // Add 1 followed by 7 zeros
-	  M->e[0] = 0x80;
-	  //Enforce the loop to continue for on more itteration to add hashing to the last block.
-	  return 1;
-	}
+  if (*S == PAD1){
+    // Add 1 followed by 7 zeros
+    M->e[0] = 0x80;
+    //Enforce the loop to continue for on more itteration to add hashing to the last block.
+    return 1;
+  }
  }
-	// Reading file has not finshedd yet S == READ
+  // Reading file has not finshedd yet S == READ
     nobytes =  fread(M->e, 1, 64, msgf);
-	
-	//get the size of the file as bits
+  
+  //get the size of the file as bits
     *nobits = *nobits + (nobytes * 8);
-	//get to last eight bytes of the file
+  //get to last eight bytes of the file
     if(nobytes < 56) {
-	  
-	  //set to 1 followed by 7 zeros
+    
+    //set to 1 followed by 7 zeros
       M->e[nobytes] = 0x80;
-	  //loop unitl the end of the last block
+    //loop unitl the end of the last block
       while (nobytes < 56) {
-		//add 1 to nobytes to acces next index
+    //add 1 to nobytes to acces next index
         nobytes = nobytes + 1;
-		//Set all bytes to zero up to the last eight bytes
-		// The size of the file will be the last part of the block
+    //Set all bytes to zero up to the last eight bytes
+    // The size of the file will be the last part of the block
         M->e[nobytes] = 0x00;
       }
-	//Truth vaule for endian
-	
-		//@todo ensure message is big endian
-		//set the last element of M to the size of the file in bits
-		//Swap the ordering to big endian
-		M->s[7] = checkEndian(*nobits);
-	
+  //Truth vaule for endian
+  
+    //@todo ensure message is big endian
+    //set the last element of M to the size of the file in bits
+    //Swap the ordering to big endian
+    M->s[7] = checkEndian(*nobits);
+  
       //Set enum to finish to exit loop.
       *S = FINISH;
-	  // Condition to check if there isn't enouhg room to add padding to the end of the file.
+    // Condition to check if there isn't enouhg room to add padding to the end of the file.
     } else if (nobytes < 64) {
-		// States that we need another message block of all zeros
+    // States that we need another message block of all zeros
         *S = PAD0;
-		// Set the message block e to 1 followed by 7 zero's
+    // Set the message block e to 1 followed by 7 zero's
         M->e[nobytes] = 0x80;
-		// Loop to end of message block to add all zeros
+    // Loop to end of message block to add all zeros
         while(nobytes < 64) {
-		  //Access the next index in array.
+      //Access the next index in array.
           nobytes = nobytes + 1;
-		  // Set to zero
+      // Set to zero
           M->e[nobytes] = 0x00;
         }
-	  // check if end of file reached and the file size is exactly 
-	  // a multiple of 64 bytes
+    // check if end of file reached and the file size is exactly 
+    // a multiple of 64 bytes
       }else if(feof(msgf)){
-		// set enum to PAD1.
+    // set enum to PAD1.
         *S = PAD1;    
       }
   
