@@ -454,6 +454,18 @@ uint64_t swap(uint64_t k){
 }
 ```
 
+# Testing the application
+
+To test the application a small text is used with a couple of lines of text.
+Two different online sha256 generators were used to verify that they both have the same output for the same text file.
+Results below:
+
+
+
+
+
+When the same file was run with the script it had a different output to the above two online tests.
+
 ## Resources used to create this application:
 https://stackoverflow.com/questions/45307516/c-c-code-to-convert-big-endian-to-little-endian
 https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
