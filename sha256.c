@@ -189,7 +189,7 @@ void sha256(FILE *msgf){
   // Loop variables
   int i, t;
   //Loop throuh message blocks
-  while(nextMessageBlock(msgf, &M, &S, &nobits)==1){
+  while(nextMessageBlock(msgf, &M, &S, &nobits)){
   
     for(t = 0; t < 16; t++){
 	  //Initialise the first 16 32-bit integers of M to W of the current message block.
