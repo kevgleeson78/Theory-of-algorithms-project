@@ -10,7 +10,23 @@
 #include<stdio.h>
 #include<stdint.h>
 
-void sha256();
+// unoins are used to store each member variable in the same memory location.
+// This allows for assigning  different variable types dynamically from the same memory block.
+// The Unoin below can access the msgblock and we can call the different unsigend intergers at any time from the same memory location. 
+union msgblock{
+  // To acces the message block as bytes
+  uint8_t e[64];
+  // To acces the message block as 32-bit integer 
+  uint32_t t[16];
+  // To access the message block as eight 64-bit intergers
+  uint64_t s[8];
+};
+
+// enum used for flags for reading a file, finished reading a file,
+// PAD1 for padding the message, PAD0 for no padding needed.
+// represented as 0, 1, 2, 3.  
+enum status {READ, PAD0, PAD1, FINISH};
+
 
 //Sections 4.1.2 and 4.2.2 for definitions
 uint32_t sig0(uint32_t x);
@@ -30,31 +46,24 @@ uint32_t SIG1(uint32_t x);
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 
-// unoins are used to store each member variable in the same memory location.
-// This allows for assigning  different variable types dynamically from the same memory block.
-// The Unoin below can access the msgblock and we can call the different unsigend intergers at any time from the same memory location. 
-union msgblock{
-  // To acces the message block as bytes
-  uint8_t e[64];
-  // To acces the message block as 32-bit integer 
-  uint32_t t[16];
-  // To access the message block as eight 64-bit intergers
-  uint64_t s[8];
-};
+void sha256(FILE *msgf);
 
-// enum used for flags for reading a file, finished reading a file,
-// PAD1 for padding the message, PAD0 for no padding needed.
-// represented as 0, 1, 2, 3.  
-enum status {READ, PAD0, PAD1, FINISH};
+int nextMessageBlock(FILE *f, union msgblock *M, enum status *S, uint64_t *nobits);
 
-int nextMessageBolck();
 int main(int argc, char *argv[]){
-
-  sha256();
+  FILE* msgf;
+  msgf = fopen(argv[1], "r");
+  sha256(msgf);
+  fclose(msgf);
   return 0;
   }
 
-void sha256(){
+void sha256(FILE *msgf){
+  union msgblock M;
+  
+  uint64_t nobits = 0; 
+
+  enum status S = READ;
   // K constants From section 4.2.2
   uint32_t K[] = {
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,
@@ -96,19 +105,14 @@ void sha256(){
     0x5be0cd19
   };
   
-  //Current Message Block array
-  uint32_t M[16] = {0, 0, 0, 0, 0, 0, 0 ,0};
-  
-  // Loop variable
+  // Loop variables
   int i, t;
-  while(nextMessageBlock()==1){
+  while(nextMessageBlock(msgf, &M, &S, &nobits)){
   //Loop throuh message blocks
  // for(i = 0; i < 1; i++){
    // Wt = mt (Page 22)
     for(t = 0; t < 16; t++){
-    
-      W[t] = M[t];
-    
+      W[t] = M.t[t];
     }
 
 
@@ -146,7 +150,7 @@ void sha256(){
     H[7] = h + H[7];
   }
 
-  printf("%x %x %x %x %x %x %x %x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7], H[8]);
+  printf("%08x %08x %08x %08x %08x %08x %08x %08x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7], H[8]);
  }
 
 // See section 3.2 fro definitions.
@@ -197,62 +201,53 @@ uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
   return ((x & y) ^ (x & z) ^ (y & z));
 }
-int nextMessageBlock(){
-
- union msgblock M;
-  
-  uint64_t nobits = 0; 
+int nextMessageBlock(FILE *f, union msgblock *M, enum status *S, uint64_t *nobits){
 
   uint64_t nobytes; 
-
-  enum status S = READ;
-
-
-  FILE* f;
-  f = fopen(argv[1], "r");
-  int i;  
-  while(S == READ) {
-    nobytes =  fread(M.e, 1, 64, f);
-    printf("Read %211u bytes\n", nobytes);
-    nobits = nobits + (nobytes * 8);
+  
+  int i;
+  if(*S == FINISH){
+	return 0;
+  }
+  if (*S == PAD0 || *S == PAD1) {
+    for (i = 0; i < 56; i++){
+      M->e[i] = 0x00;
+	  
+    }
+    M->s[7] = *nobits;
+	*S = FINISH;
+	if (*S == PAD1){
+		M->e[0] = 0x80;
+		return 1;
+	}
+  }
+  
+    nobytes =  fread(M->e, 1, 64, f);
+    
+    *nobits = *nobits + (nobytes * 8);
     if(nobytes < 56) {
-      printf("I've found a block with less than 55 bytes!\n");
-      M.e[nobytes] = 0x80;
+
+      M->e[nobytes] = 0x80;
       while (nobytes < 56) {
         nobytes = nobytes + 1;
-        M.e[nobytes] = 0x00;
+        M->e[nobytes] = 0x00;
       }
       //@TODO Ensure that it is big endian
-      M.s[7] = nobits;
-      S = FINISH;      
+      M->s[7] = *nobits;
+      *S = FINISH;      
     } else if (nobytes < 64) {
-        S = PAD0;
-        M.e[nobytes] = 0x80;
+        *S = PAD0;
+        M->e[nobytes] = 0x80;
         while(nobytes < 64) {
           nobytes = nobytes + 1;
-          M.e[nobytes] = 0x00;
+          M->e[nobytes] = 0x00;
         }          
       }else if(feof(f)){
-        S = PAD1;    
-      }
-  }
-
-  if (S == PAD0 || S == PAD1) {
-    for (i = 0; i < 56; i++){
-      M.e[i] = 0x00;
-    }
-    M.s[7] = nobits;
-  }
-  if (S == PAD1){
-    M.e[0] = 0x80;
-  }
+		  
+        *S = PAD1;    
+      }  
   
-  fclose(f);
   
-  for (int i = 0;i < 64; i++)
-    printf("%x ", M.e[i]);
-  printf("\n");
-
-
-  return 0;
+  
+  return 1;
 }
