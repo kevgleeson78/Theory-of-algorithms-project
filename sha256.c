@@ -21,7 +21,6 @@
 *
 */
 
-
 /* The stdio package is used for input/output
  * operations within this file using printf() for 
  * the output of the sha256 message blocks.
@@ -83,7 +82,7 @@ union msgblock{
   // To acces the message block as bytes
   uint8_t e[64];
   // To acces the message block as 32-bit integer 
-  uint32_t t[16];
+  uint32_t q[16];
   // To access the message block as eight 64-bit intergers
   uint64_t s[8];
 };
@@ -204,7 +203,7 @@ void sha256(FILE *msgf){
     for(t = 0; t < 16; t++){
     //Initialise the first 16 32-bit integers of M to W of the current message block.
       // There will be 48 elements left to fill in W. 
-      W[t] = M.t[t];
+      W[t] = M.q[t];
     }
 
 
@@ -309,12 +308,9 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
 // Function to read file 
 int nextMessageBlock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits){
 
-
   // store the number of bytes read from the file.
   uint64_t nobytes; 
-  
- 
-  
+    
   // Loop control variable.
   int i;
   //return S as the flag FINISH if the file has finish reading.
@@ -361,7 +357,7 @@ int nextMessageBlock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *no
     // The size of the file will be the last part of the block
         M->e[nobytes] = 0x00;
       }
-  //Truth vaule for endian
+    //Truth vaule for endian
   
     //@todo ensure message is big endian
     //set the last element of M to the size of the file in bits
