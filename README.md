@@ -10,7 +10,7 @@ Fourth year student at: [GMIT](http://gmit.ie) Galway
 
 1: Download [git](https://git-scm.com/downloads) to your machine if not already installed.
 
-1.1: For this project I have used a instance of a Debian system on the google cloud platform.<br>
+1.1: For this project I have used an instance of a Debian system on the google cloud platform.<br>
 This is used to compile and run the various files held within this repository. Please see below for further instruction on how to compile the files needed.
 
 2: Open a command line and cd to the location you wish to clone the repository to.
@@ -32,7 +32,7 @@ This will compile and create an executable file from the sha256.c file and name 
 
 5: To run the application ensure you cd to folder the application is held.
 Type the following commands: 
-* The first argument is the executible.
+* The first argument is the executable.
 * The second command is the file to be passed through the sha256 algorithm.
 * You can choose any file you wish in the below example I have use a text file named test.txt with a paragraph of text.
 ```bash
@@ -43,25 +43,25 @@ Type the following commands:
 
 # Background of project
 The purpose of this project is to demonstrate in the C programming language an implementation of sha-256 encryption algorithm.<br/>
-The development of the algorithm was aided by the use of the National Institute of Standards and Technology's [Secure Hash Standard (SHS)](https://www.nist.gov/publications/secure-hash-standard) describing how sha-256 should be implemented and structured.<br/> Below will explain how each phase of the development was completed and how each major function within the script relates to the SHS document's desciption of the algorithm. 
+The development of the algorithm was aided by the use of the National Institute of Standards and Technology's [Secure Hash Standard (SHS)](https://www.nist.gov/publications/secure-hash-standard) describing how sha-256 should be implemented and structured.<br/> Below will explain how each phase of the development was completed and how each major function within the script relates to the SHS document's description of the algorithm. 
 
 
 ## The SHA-256 Algorithm
-The sha-256 algorithm takes message of any length as input and splits the message into message blocks of 64 bytes. Padding is added to the last message block read to ensure uniqueness for the given input. Each of these message blocks have a hashing function performed on them to give an output that is always 256 bits in length and unique to the given input message. The secure hash algorithm sha-256 is a one way function where it is considered infeasable to obtain the input messsage from the 256 bit hashed output. The sections below will describe in more detail on how the algorithm works and how it was implemented in C.
+The sha-256 algorithm takes message of any length as input and splits the message into message blocks of 64 bytes. Padding is added to the last message block read to ensure uniqueness for the given input. Each of these message blocks have a hashing function performed on them to give an output that is always 256 bits in length and unique to the given input message. The secure hash algorithm sha-256 is a one way function where it is considered infeasible to obtain the input message from the 256 bit hashed output. The sections below will describe in more detail on how the algorithm works and how it was implemented in C.
 
 
 
 
 ## Implementing SHA-256
-The below code snippetts are from the sha256.c file held within this repository.
-If you need a copy of the document describing the below algorithm it can be foud [here](https://www.nist.gov/publications/secure-hash-standard).
-### Functions Of Application:
+The below code snippets are from the sha256.c file held within this repository.
+If you need a copy of the document describing the below algorithm it can be found [here](https://www.nist.gov/publications/secure-hash-standard).
+### Functions of Application:
 This function will be used to hold the main body of the algorithm and will be called in the main function in sha256.c
 ```C
 void sha256();
 ```
 ### Contents of sha356 function
-#### K constants From section 4.2.2
+#### K constants from section 4.2.2
 The below array holds 64 fixed hex values.
 Each Value in the array are the first thirty two bits of the cube roots of the first 64 prime numbers.
 The values are used as a part of the formula to determine the value for the temporary variable T1 below.
@@ -93,20 +93,20 @@ This array expands the 512 bit message block into a 64 word array of each word b
 uint32_t W[64];
 ```
 #### Working Variables (Section 6.2)
-There are eight working variables needed to update the hash values with each itteration of the below loop.
+There are eight working variables needed to update the hash values with each iteration of the below loop.
 ```C
 uint32_t a, b, c, d, e, f, g, h;
 ```
 #### Temporary Variables (Section 6.2)
-Two temporary variables are lso used in the update of the has values within the below loop(Section 6.2)
+Two temporary variables are also used in the update of the has values within the below loop(Section 6.2)
 ```C
   uint32_t T1,T2; 
 ```
 #### Hex Values from (Section 5.3.3)
-The following 32-bit words are the inital hash values for the sha256 algorithm.
-These values are the first 32-bits  of the fractional parts of the square roots of
+The following 32-bit words are the initial hash values for the sha256 algorithm.
+These values are the first 32-bits of the fractional parts of the square roots of
 the first eight prime numbers.
-Each value is assigned to the corresponding eight working variables a, b, c, ... , h as initial values in the first itteration of the algorithm.
+Each value is assigned to the corresponding eight working variables a, b, c, ... , h as initial values in the first iteration of the algorithm.
 ```C
 uint32_t H[8] = {
     0x6a09e667,
@@ -142,9 +142,9 @@ Once this has been completed there are still 48 elements left to fill in the arr
 ```
 
 #### (page 22) filling the remaining elements from 16 - 64.
-In the below loop the elements from 16 -64 in the W[] array are populated buy running the sig1 and sig0 functions on certain indexeds in the w W array (more details below...).
+In the below loop the elements from 16 -64 in the W[] array are populated buy running the sig1 and sig0 functions on certain indices in the w W array (more details below...).
 
-As descussed above the working variables a,b,c,...,h are initialised to each corresponding element of the h[] array.
+As discussed above the working variables a,b,c,...,h are initialised to each corresponding element of the h[] array.
 
 ```C
 for(t = 16; t < 64; t++){
@@ -159,11 +159,11 @@ for(t = 16; t < 64; t++){
     }
 ```
 #### (section 6.6.2) assigning temporary variables T1 and T2 and updating working variables a,b,c...,h.
-The below loop itterates throuhg the 64 word message block and updates working variables a - h with each iitteration. 
-The temporary variable T1 is assigned the concatonation of the h working variable along with the t'th element of K[] and W[] and the output of the functions SIG1 and CH.
+The below loop iterates through the 64 word message block and updates working variables a - h with each iteration. 
+The temporary variable T1 is assigned the concatenation of the h working variable along with the tithe element of K[] and W[] and the output of the functions SIG1 and CH.
 T2 is assigned the output of SIG0 and MAJ.
 This continues until the loop has reached the end of the message block.
-These functions will be expalined futher below.
+These functions will be explained further below.
 ```C
 for( t = 0; t < 64; t++){
       T1 = h + SIG1(e) + Ch(e,f,g) + K[t] + W[t];
@@ -236,7 +236,7 @@ uint32_t sig1(uint32_t x){
 }
 ```
 #### SIG0 See section 4.1.2 for definitions
-More rotate right and xor opperations.
+More rotate right and xor operations.
 ```C
 uint32_t SIG0(uint32_t x){
  return  (rotr(2, x) ^ rotr(13, x) ^ rotr(22, x));
@@ -274,23 +274,23 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
 
 
 # Padding the message
-With the SHA-256 algorithm all messages must be a multpile of 512 bit in lenght.
-Idf the last message block is not 512 bits it must be padded out to 512.
-The beginning of the padding starting with a 1 to ensure uniqueness and with the last 8 bytes reserved for wirtingthe size of the file in binary.
+With the SHA-256 algorithm all messages must be a multpile of 512 bit in length.
+If the last message block is not 512 bits it must be padded out to 512.
+The beginning of the padding starting with a 1 to ensure uniqueness and with the last 8 bytes reserved for writing the size of the file in binary.
 Below are coded snippets on how the messages are padded.
 
 
-#### Unoins are used to store each member variable in the same memory location.
-This allows for assigning  different variable types dynamically from the same memory block.
-The Unoin below can access the msgblock and we can call the different unsigend intergers at any time from the same memory location.
+#### Unions are used to store each member variable in the same memory location.
+This allows for assigning different variable types dynamically from the same memory block.
+The Union below can access the msgblock and we can call the different unsigned integers at any time from the same memory location.
 This allows us to manipulate the messages blocks as needed.
 ```C
 union msgblock{
-  // To acces the message block as bytes
+  // To access the message block as bytes
   uint8_t e[64];
-  // To acces the message block as 32-bit integer 
+  // To access the message block as 32-bit integer 
   uint32_t t[16];
-  // To access the message block as eight 64-bit intergers
+  // To access the message block as eight 64-bit integers
   uint64_t s[8];
 };
 ```
@@ -301,7 +301,7 @@ If an error occurs a message of the error type is displayed within the command l
 ```C
 // declare A file pointer from cmd input
   FILE* f;
-    // open the file from the first  argument in the command line
+    // open the file from the first argument in the command line
   f = fopen(argv[1], "r");
   //Error check for file input.
   // Adapted from: https://stackoverflow.com/questions/48634880/c-reading-files-passed-as-command-line-argument
@@ -317,7 +317,7 @@ Below we have a two conditions.
 The first condition checks a flag to see if it has the status of finished and returns zero if it has (terminates).
 The second condition test if either PAD0 or PAD1 are true we still need to add padding to the file.
 PAD0 starts a new message block with a 1 followed by eight zeros and then fills the rest of the block with all zeros up to the last eight bytes of the file.
-PAD1 complets the padded block with a hex representation of the size of the input file.
+PAD1 completes the padded block with a hex representation of the size of the input file.
 zeros are added up to the last eight bytes of the file. 
 Then the size of the file is added as a hex value to the very end of the final hashed message.
 These will be explained further below.
@@ -334,7 +334,7 @@ These will be explained further below.
   }
   
    //Condition to check for PAD0 or PAD1 flags.
-  //If eaither are true there still needs to be additional padding added to the file.  
+  //If either are true there still needs to be additional padding added to the file.  
   if (*S == PAD0 || *S == PAD1) {
 	// loop up the the last 8 bytes of the block
     for (i = 0; i < 56; i++){
@@ -349,7 +349,7 @@ These will be explained further below.
 	if (*S == PAD1){
 	  // Add 1 followed by 7 zeros
 	  M->e[0] = 0x80;
-	  //Enforce the loop to continue for on more itteration to add hashing to the last block.
+	  //Enforce the loop to continue for on more iteration to add hashing to the last block.
 	  return 1;
 	}
  }
@@ -365,8 +365,8 @@ First we get the size of the message block.
 ```
 If the size of the block is less than 56 bytes some padding will be needed to make the file a multiple of 512.
 First A 1 is added followed by all zeros up to the last eight bytes.
-The the last block is set to the size of the file for uniqueness.
-Finallly the flag is set to finish to signal the loop has completed.
+The last block is set to the size of the file for uniqueness.
+Finally the flag is set to finish to signal the loop has completed.
 ```C
 
 	//get to last eight bytes of the file
@@ -374,15 +374,15 @@ Finallly the flag is set to finish to signal the loop has completed.
 	  
 	  //set to 1 followed by 7 zeros
       M->e[nobytes] = 0x80;
-	  //loop unitl the end of the last block
+	  //loop until the end of the last block
       while (nobytes < 56) {
-		//add 1 to nobytes to acces next index
+		//add 1 to nobytes to access next index
         nobytes = nobytes + 1;
 		//Set all bytes to zero up to the last eight bytes
 		// The size of the file will be the last part of the block
         M->e[nobytes] = 0x00;
       }
-	//Truth vaule for endian
+	//Truth value for endian
 	
 		//@todo ensure message is big endian
 		//set the last element of M to the size of the file in bits
@@ -396,7 +396,7 @@ Finallly the flag is set to finish to signal the loop has completed.
 Finally if the file happens to be exactly a multiple of 512 in size the file still must be padded.
 The same process is followed as above with a1 added to the start of the block with the last eight bytes being reserved for the size of the file.
 ```C
-// Condition to check if there isn't enouhg room to add padding to the end of the file.
+// Condition to check if there isn't enough room to add padding to the end of the file.
     } else if (nobytes < 64) {
 		// States that we need another message block of all zeros
         *S = PAD0;
@@ -417,14 +417,14 @@ The same process is followed as above with a1 added to the start of the block wi
       }
 ```
 ## Check the system for big endian
-The SHA-256 Algorithm states the the final message must be in big endian format.
+The SHA-256 Algorithm states the final message must be in big endian format.
 The below function checks this by having a test variable of 0x01.
 Then a check to see if the system displays this value as 10.
 ```C
 uint64_t checkEndian(uint64_t test){
 	// Variable to be used check for endian system type.
 	int num = 0x01;
-	// If the first char is 1 it's littel endian
+	// If the first char is 1 it's little endian
 	if (*(char *)&num == 1)
   {
      
@@ -435,7 +435,7 @@ uint64_t checkEndian(uint64_t test){
   }
  }
 ```
-If 1 comes first in the string  it is a little endian system and the ordering of the bits needs to be reversed.
+If 1 comes first in the string it is a little endian system and the ordering of the bits needs to be reversed.
 
 The below function reverses the ordering of a 64 bit integer.
 
@@ -457,9 +457,9 @@ uint64_t swap(uint64_t k){
 
 # Testing the application
 
-To test the application a text file with "abc" as NIST recomendations for test data.
+To test the application a text file with "abc" as NIST recommendations for test data.
 A file containing the ASCII string "abc" results in a 256-bit message digest of BA7816BF 8F01CFEA 414140DE 5DAE2223 B00361A3 96177A9C B410FF61 F20015AD. (source: https://www.nist.gov/itl/ssd/software-quality-group/nsrl-test-data).
-There are three online SHA-256 generators that I used to verify that the output was correct for the file before testing it on the appliacation.
+There are three online SHA-256 generators that I used to verify that the output was correct for the file before testing it on the application.
 
 
 Three different online sha256 generators were used to verify that they both have the same output for the same text file.
@@ -471,11 +471,11 @@ Results below:
 
 All of the above tests produced the expected digest message of: BA7816BF 8F01CFEA 414140DE 5DAE2223 B00361A3 96177A9C B410FF61 F20015AD
 
-This prooves that the file is in the correct format and is suitable for testing the implemented version of the SHA_256 algorithm.
+This proves that the file is in the correct format and is suitable for testing the implemented version of the SHA_256 algorithm.
 
-Tesing the application results:
+Testing the application results:
 
-#### The resulting output for the test file containg the string "abc":
+#### The resulting output for the test file that contains the string "abc":
 b2a49a28 fe1249ed 415a3d18 ee459d58 63b077bf c4c8e0e1 c31df05d c45c65f2.
 This result does not match the expected result of the above string
 
@@ -487,23 +487,23 @@ Application output:
 The string form the application do not match.
 
 
-The results from both tests above would indecate that there is a problem somewhere withthe application.
+The results from both tests above would indicate that there is a problem somewhere with the application.
 
 ### Steps taken to find a solution.
 
 #### Two variables of t within a for loop:
 There are two instances of t within a loop. 
-The union message block M.t and the loop varable t.
+The union message block M.t and the loop variable t.
 M.t[t] is used inside this loop it may be causing unwanted behaviour.
 Action taken:
-Mesage block M.t change to M.q[t]
+Message block M.t change to M.q[t]
 
 Result: No change in output.
 #### Removing endian converter
 Removing endian swap function to see if it causing the issue:
 
 Result:
-No chnage in output
+No change in output
 
 #### Removing endian check
 Remove endian check function.
@@ -522,10 +522,11 @@ All correct.
 
 ### Conclusion
 
-There is still a problem with the output string of the application and needs to be investifated as to why it is happening.
+There is still a problem with the output string of the application and needs to be investigated as to why it is happening.
 
 
 ## Resources used to create this application:
+
 https://www.nist.gov/itl/ssd/software-quality-group/nsrl-test-data
 https://stackoverflow.com/questions/45307516/c-c-code-to-convert-big-endian-to-little-endian
 https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
