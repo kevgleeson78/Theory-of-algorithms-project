@@ -297,6 +297,7 @@ union msgblock{
 #### Reading in a File.
 A file can be passed in as a command line argument.
 A further error check is used to ensure that a valid file has been passed as an argument.
+If an error occurs a message of the error type is displayed within the command line to the user.
 ```C
 // declare A file pointer from cmd input
   FILE* f;
@@ -434,7 +435,7 @@ uint64_t checkEndian(uint64_t test){
   }
  }
 ```
-If it does it a a little endian system and the ordering of the bits needs to be reversed.
+If 1 comes first in the string  it is a little endian system and the ordering of the bits needs to be reversed.
 
 The below function reverses the ordering of a 64 bit integer.
 
@@ -456,17 +457,76 @@ uint64_t swap(uint64_t k){
 
 # Testing the application
 
-To test the application a small text is used with a couple of lines of text.
-Two different online sha256 generators were used to verify that they both have the same output for the same text file.
+To test the application a text file with "abc" as NIST recomendations for test data.
+A file containing the ASCII string "abc" results in a 256-bit message digest of BA7816BF 8F01CFEA 414140DE 5DAE2223 B00361A3 96177A9C B410FF61 F20015AD. (source: https://www.nist.gov/itl/ssd/software-quality-group/nsrl-test-data).
+There are three online SHA-256 generators that I used to verify that the output was correct for the file before testing it on the appliacation.
+
+
+Three different online sha256 generators were used to verify that they both have the same output for the same text file.
+The last link in the list below allows for plain text to be input also.
+1: https://md5file.com/calculator
+2: https://emn178.github.io/online-tools/sha256_checksum.html
+3: https://passwordsgenerator.net/sha256-hash-generator/
 Results below:
 
+All of the above tests produced the expected digest message of: BA7816BF 8F01CFEA 414140DE 5DAE2223 B00361A3 96177A9C B410FF61 F20015AD
+
+This prooves that the file is in the correct format and is suitable for testing the implemented version of the SHA_256 algorithm.
+
+Tesing the application results:
+
+#### The resulting output for the test file containg the string "abc":
+b2a49a28 fe1249ed 415a3d18 ee459d58 63b077bf c4c8e0e1 c31df05d c45c65f2.
+This result does not match the expected result of the above string
+
+#### The result of an empty file to ensure that something different is being calculated:
+Online Calculators:
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Application output:
+7d55ecc0 23def8dc 90db199 ccf368a0 f2f66788 f13217eb ba407df1 29af21cb
+The string form the application do not match.
 
 
+The results from both tests above would indecate that there is a problem somewhere withthe application.
+
+### Steps taken to find a solution.
+
+#### Two variables of t within a for loop:
+There are two instances of t within a loop. 
+The union message block M.t and the loop varable t.
+M.t[t] is used inside this loop it may be causing unwanted behaviour.
+Action taken:
+Mesage block M.t change to M.q[t]
+
+Result: No change in output.
+#### Removing endian converter
+Removing endian swap function to see if it causing the issue:
+
+Result:
+No chnage in output
+
+#### Removing endian check
+Remove endian check function.
+
+Result:
+
+No change in output.
+
+#### Double check all bit shifting functions MAJ, CH , ROTR, SHR, sig0, sig1, SIG0, SIG1.
+Check each of the above functions for typos and position of operators.
+
+Result:
+
+All correct.
 
 
-When the same file was run with the script it had a different output to the above two online tests.
+### Conclusion
+
+There is still a problem with the output string of the application and needs to be investifated as to why it is happening.
+
 
 ## Resources used to create this application:
+https://www.nist.gov/itl/ssd/software-quality-group/nsrl-test-data
 https://stackoverflow.com/questions/45307516/c-c-code-to-convert-big-endian-to-little-endian
 https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm
 https://www.nist.gov/publications/secure-hash-standard
