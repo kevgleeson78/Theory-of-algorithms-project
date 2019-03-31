@@ -38,7 +38,8 @@
 #include <stdlib.h>
 
 // Adapted from https://stackoverflow.com/questions/45307516/c-c-code-to-convert-big-endian-to-little-endian
-// Function to convert little endian bit ordering to big endian. 
+// Function to convert little endian bit ordering to big endian.
+// Converted by shifting each bit to the end of the 64 bit block 
 uint64_t swap(uint64_t k){
 
   return ((k << 56) |
@@ -253,7 +254,7 @@ void sha256(FILE *msgf){
     H[7] = h + H[7];
   }
   // Print out the test result from the initialised array M  of zeros.
-  printf("%x %x %x %x %x %x %x %x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
+  printf("%08x %08x %08x %08x %08x %08x %08x %08x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
  }
 
 // See section 3.2 for definitions.
