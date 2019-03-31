@@ -54,7 +54,7 @@ The sha-256 algorithm takes message of any length as input and splits the messag
 
 ## Implementing SHA-256
 The below code snippets are from the sha256.c file held within this repository.
-If you need a copy of the document describing the below algorithm it can be found [here](https://www.nist.gov/publications/secure-hash-standard).
+If you need a copy of National Institute of Standards and Technology's Secure Hash Standard (SHS) describing the below algorithm it can be found [here](https://www.nist.gov/publications/secure-hash-standard).
 ### Functions of Application:
 This function will be used to hold the main body of the algorithm and will be called in the main function in sha256.c
 ```C
