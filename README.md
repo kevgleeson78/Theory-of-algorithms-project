@@ -477,13 +477,18 @@ Testing the application results:
 
 #### The resulting output for the test file that contains the string "abc":
 b2a49a28 fe1249ed 415a3d18 ee459d58 63b077bf c4c8e0e1 c31df05d c45c65f2.
+
 This result does not match the expected result of the above string
 
 #### The result of an empty file to ensure that something different is being calculated:
 Online Calculators:
+
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
 Application output:
+
 7d55ecc0 23def8dc 90db199 ccf368a0 f2f66788 f13217eb ba407df1 29af21cb
+
 The string form the application do not match.
 
 
@@ -492,20 +497,29 @@ The results from both tests above would indicate that there is a problem somewhe
 ### Steps taken to find a solution.
 
 #### Two variables of t within a for loop:
+
 There are two instances of t within a loop. 
+
 The union message block M.t and the loop variable t.
+
 M.t[t] is used inside this loop it may be causing unwanted behaviour.
+
 Action taken:
+
 Message block M.t change to M.q[t]
 
 Result: No change in output.
+
 #### Removing endian converter
+
 Removing endian swap function to see if it causing the issue:
 
 Result:
+
 No change in output
 
 #### Removing endian check
+
 Remove endian check function.
 
 Result:
@@ -517,7 +531,9 @@ Check each of the above functions for typos and position of operators.
 
 Result:
 
-All correct.
+changed input variables of x and n for shr and rotr to match specification.
+
+The algorithm is still producing the incorrect hash vlue
 
 
 ### Conclusion
